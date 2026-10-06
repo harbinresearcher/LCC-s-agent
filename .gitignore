@@ -1,0 +1,14 @@
+# 环境变量与密钥（绝不能进 git）
+.env
+
+# Python 虚拟环境与缓存
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# 编辑器与系统文件
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
