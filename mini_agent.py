@@ -131,6 +131,13 @@ def read_file(filename: str) -> str:
         return f"读取失败:{e}"
 
 
+def to_jsonable(obj: Any) -> Any:
+    """json.dump 遇到不认识的类型时会调用它：把 openai SDK 的对象转成普通 dict"""
+    if hasattr(obj, "model_dump"):  # pydantic v2 模型（当前 openai SDK 用的就是它）
+        return obj.model_dump(mode="json")
+    return str(obj)  # 兜底：其它怪类型直接转成字符串
+
+
 def chat_with_tools(messages: list[Any]) -> Any:
     response = client.chat.completions.create(
         model="deepseek-chat",
@@ -151,6 +158,12 @@ def run_agent(task: str, max_rounds: int = 8) -> str:
         print(f"\n===== 第 {round_num + 1} 轮 =====")
         message = chat_with_tools(messages)
         messages.append(message)
+
+        # 把对话历史存盘，方便调试。
+        # messages 里混着普通 dict 和 SDK 返回的对象，json.dump 不认识后者，
+        # 所以用 default=to_jsonable 告诉它"遇到不认识的类型就调这个函数转换"。
+        with open("history.json", "w", encoding="utf-8") as f:
+            json.dump(messages, f, ensure_ascii=False, indent=2, default=to_jsonable)
         
         # 如果没有tool_calls，说明模型认为已经完成
         if not message.tool_calls:

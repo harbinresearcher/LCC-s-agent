@@ -7,6 +7,9 @@ venv/
 __pycache__/
 *.py[cod]
 
+# Agent 跑起来产生的调试文件
+history.json
+
 # 编辑器与系统文件
 .vscode/
 .idea/
