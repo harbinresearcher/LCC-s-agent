@@ -12,4 +12,6 @@
 - `list_files` —— 列出目录下的文件
 - `run_shell` —— 执行 shell 命令
 
+`examples/` 目录里是 agent 自己跑出来的产物（不是手写代码），可以看它实际输出长什么样。
+
 
