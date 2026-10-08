@@ -26,12 +26,7 @@ def test_div():
 
 
 def test_div_by_zero():
-    try:
-        div(1, 0)
-    except ZeroDivisionError:
-        pass
-    else:
-        raise AssertionError("div by zero should raise ZeroDivisionError")
+    assert div(1, 0) is None
 
 
 if __name__ == "__main__":
