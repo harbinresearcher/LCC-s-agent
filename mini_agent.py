@@ -260,30 +260,31 @@ def run_shell(command: str) -> str:
     except OSError as e:
         return f"执行异常: {e}"
 
-def edit_file(filename:str,old_content:str,new_content:str)->str:
+def edit_file(filename: str, old_content: str, new_content: str) -> str:
     """编辑本地文件内容，返回成功/失败信息"""
     try:
         with open(filename, "r", encoding="utf-8") as f:
             content = f.read()
     except OSError as e:
-        return f"读取失败:{e}"  
+        return f"读取失败:{e}"
 
     count = content.count(old_content)
     if count == 0:
         return f"编辑失败:文件{filename}中未找到指定的旧内容"
     if count > 1:
         return f"编辑失败:文件{filename}中找到多个匹配的旧内容，请确保旧内容唯一"
-    
+
     content = content.replace(old_content, new_content, 1)
-    
+
     try:
         with open(filename, "w", encoding="utf-8") as f:
             f.write(content)
         return f"编辑成功:{filename}"
     except OSError as e:
         return f"编辑失败:{e}"
-    
-def submit(summary:str,evidence:str)->str:
+
+
+def submit(summary: str, evidence: str) -> str:
     if summary.strip() == "" or evidence.strip() == "":
         return "提交失败:summary和evidence不能为空"
     else:
@@ -354,15 +355,16 @@ def run_agent(task: str, max_rounds: int = 8, load_history: bool = False) -> str
             messages.append({"role": "user", "content": "尚未收到submit.请继续完成并验证任务,完成后调用submit工具."})
             save_history(messages)  # 每轮都存盘，方便调试，也方便 load_history=True 续跑
             continue
-        # 有 tool_calls，逐个执行     
+
+        # 有 tool_calls，逐个执行
         submission = None
         for tool_call in message.tool_calls:
             name = tool_call.function.name
             args = json.loads(tool_call.function.arguments)
             print(f"模型要调用 {name}，参数：{args}")
             result = call_tool(name, args)
-            if name == "submit":
-                result.startswith("提交成功") and (submission := result)  # 记录提交结果
+            if name == "submit" and result.startswith("提交成功"):
+                submission = result  # 记录提交结果
             print(f"执行结果：\n{result}")
 
             # 每个 tool_call 都必须回一条 tool 消息，否则下一轮请求会被 API 拒绝
